@@ -1,0 +1,17 @@
+import joblib
+from flask import Flask, request, jsonify
+app = Flask(__name__)
+joblib.dump(models['RandomForest'], 'rf_model.pkl')
+
+model = joblib.load('rf_model.pkl')  # Load trained model
+cols = X.columns.tolist()
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.json
+    df_in = pd.DataFrame([data])[cols]
+    prob = model.predict_proba(df_in)[:,1][0]
+    return jsonify({'fraud_probability': round(prob, 3)})
+
+if __name__ == '__main__':
+    app.run(debug=True)
